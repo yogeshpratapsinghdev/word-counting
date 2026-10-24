@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Character and Word Counter</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --primary-hover: #4338ca;
+            --bg-color: #1b3e85;
+            --card-bg: #289a3d;
+            --text-color: #1f2937;
+            --text-light: #6b7280;
+            --border-color: #d1d5db;
+            --danger: #dc2626;
+            --warning: #d97706;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 500px;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            margin-bottom: 20px;
+            color: var(--text-color);
+            text-align: center;
+        }
+
+        .textarea-wrapper {
+            position: relative;
+            margin-bottom: 15px;
+        }
+
+        textarea {
+            width: 100%;
+            height: 150px;
+            padding: 15px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 1rem;
+            color: var(--text-color);
+            resize: none;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        textarea:focus {
+            border-color: var(--primary);
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .stat-box {
+            background-color: #f9fafb;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #e5e7eb;
+            text-align: center;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-bottom: 4px;
+        }
+
+        .stat-value {
+            font-size: 1.25rem;
+            font-weight: bold;
+            color: var(--text-color);
+        }
+
+        .warning-message {
+            font-size: 0.875rem;
+            color: var(--danger);
+            text-align: center;
+            min-height: 20px;
+            margin-bottom: 15px;
+            font-weight: 500;
+        }
+
+        .btn-clear {
+            width: 100%;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        .btn-clear:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .near-limit {
+            color: var(--warning) !important;
+        }
+        
+        .at-limit {
+            color: var(--danger) !important;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Text Analyzer</h1>
+        
+        <div class="textarea-wrapper">
+            <textarea id="textInput" placeholder="Type or paste your text here (Max 100 characters)..." maxlength="100"></textarea>
+        </div>
+
+        <div class="stats-container">
+            <div class="stat-box">
+                <div class="stat-label">Characters</div>
+                <div class="stat-value" id="charCount">0 / 100</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Remaining</div>
+                <div class="stat-value" id="remainingCount">100</div>
+            </div>
+            <div class="stat-box" style="grid-column: span 2;">
+                <div class="stat-label">Words</div>
+                <div class="stat-value" id="wordCount">0</div>
+            </div>
+        </div>
+
+        <div class="warning-message" id="warningMessage"></div>
+
+        <button class="btn-clear" id="clearBtn">Clear Text</button>
+    </div>
+
+    <script>
+        const textInput = document.getElementById('textInput');
+        const charCount = document.getElementById('charCount');
+        const remainingCount = document.getElementById('remainingCount');
+        const wordCount = document.getElementById('wordCount');
+        const warningMessage = document.getElementById('warningMessage');
+        const clearBtn = document.getElementById('clearBtn');
+
+        const MAX_LIMIT = 100;
+
+        function updateCounters() {
+            const text = textInput.value;
+            const currentLength = text.length;
+            const remaining = MAX_LIMIT - currentLength;
+
+            charCount.textContent = `${currentLength} / ${MAX_LIMIT}`;
+            remainingCount.textContent = remaining;
+
+            const words = text.trim() ? text.trim().split(/\s+/) : [];
+            wordCount.textContent = words.length;
+
+            charCount.classList.remove('near-limit', 'at-limit');
+            remainingCount.classList.remove('near-limit', 'at-limit');
+
+            if (currentLength >= MAX_LIMIT) {
+                charCount.classList.add('at-limit');
+                remainingCount.classList.add('at-limit');
+                warningMessage.textContent = "⚠️ Character limit reached (100 characters max).";
+            } else if (currentLength >= 80) {
+                charCount.classList.add('near-limit');
+                remainingCount.classList.add('near-limit');
+                warningMessage.textContent = "⚠️ Approaching the character limit!";
+            } else {
+                warningMessage.textContent = "";
+            }
+        }
+
+        textInput.addEventListener('input', updateCounters);
+
+        clearBtn.addEventListener('click', () => {
+            textInput.value = '';
+            updateCounters();
+            textInput.focus();
+        });
+
+        updateCounters();
+    </script>
+</body>
+</html>
